@@ -56,10 +56,12 @@
         else return undefined;
     }
 
-    show(color) {
+    show(color, width) {
         let c = "black";
+        let w = 5;
+        if (width) w = width;
         if (color) c = color;
         var d = new drawTool("myCanvas");
-        d.line(this.x1, this.y1, this.x2, this.y2, {width:5, color: c});
+        d.line(this.x1, this.y1, this.x2, this.y2, {width:w, color: c});
     }
 }

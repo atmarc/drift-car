@@ -5,9 +5,10 @@ class Population {
         this.walls = walls;
         this.checkpoints = checkpoints;
         this.cars = new Array(n);
+        this.neat = new Neat(8, 4);
         this.matpool = [];
         for (let i = 0; i < this.n; ++i) {
-            this.cars[i] = new Car(20, 40, this.steps);
+            this.cars[i] = new Car(20, 40, this.walls);
         }
         this.alive = new Array(n);
         this.alive.fill(true);

@@ -5,19 +5,21 @@ function dist(x1, y1, x2, y2) {
 }
 
 class Car {
-    constructor (w, h, len, dna) {
+    constructor (w, h, routeWalls, brain) {
         this.w = w;
         this.h = h;
         this.dir = {x: 0, y: 1};
         this.drift = 20;
-        this.start();
-        this.actualizeWalls();
         this.deadAt = 400;
         this.checkpoints = [];
-        if (dna) this.dna = dna;
-        else {
-            this.dna = new DNA(len);
-        }
+        this.senseWalls = [];
+        this.senseDists = [];
+        this.senseDots = [];
+        this.visionLen = 400;
+        if (brain) this.brain = brain;
+        this.route = routeWalls;
+        this.start();
+        this.actualizeWalls();
     }
 
     start() {
@@ -27,8 +29,45 @@ class Car {
         this.dir = {x: 1, y: 0};
         this.v = 0;
     }
+    
+    actualizeRouteWalls() {
+        this.senseWalls = new Array(8);
+        let x1 = this.x;
+        let y1 = this.y;
+        let pi4 = Math.PI/4;
+
+        for (let i = 0; i < 8; ++i) {
+            let angle = this.rotation + i * pi4;
+            let x2 = x1 + this.visionLen * Math.cos(angle);
+            let y2 = y1 + this.visionLen * Math.sin(angle);
+            this.senseWalls[i] = new Wall(x1, y1, x2, y2);
+        }
+
+        // Calculem punts d'intersecció dels sentits
+        for (let i = 0; i < 8; ++i) {
+            let minDot = undefined;
+            let minDist = Infinity;
+            for (let j = 0; j < this.route.length; ++j) {
+                let collision = this.senseWalls[i].intersection(this.route[j]);
+                if (collision) {
+                    let distance = dist(collision.x, collision.y, this.x, this.y); 
+                    if (distance < minDist) {
+                        minDist = distance;
+                        minDot = collision;
+                    }
+                }
+            }
+            this.senseDots[i] = minDot;
+            // Depurem errors i Infinities
+            if (minDist == undefined || minDist > this.visionLen) minDist = this.visionLen; 
+            this.senseDists[i] = minDist / this.visionLen;
+        }
+    }
 
     actualizeWalls() {
+        this.actualizeRouteWalls();
+
+        // Actualització parets que formen el cotxe
         let x1 = (this.x - this.w/2);
         let x4 = x1;
         let x2 = (this.x + this.w/2);
@@ -59,6 +98,18 @@ class Car {
         ];
     }
 
+    showSense() {
+        for (let i = 0; i < this.senseWalls.length; ++i) {
+            this.senseWalls[i].show("black", 1);
+        }
+        let d = new drawTool("myCanvas");
+        for (let i = 0; i < this.senseDots.length; ++i) {
+            let dot = this.senseDots[i];
+            if (dot) d.circle(dot.x, dot.y, 5, {color: "blue"});
+        }
+        
+    }
+
     show(color) {
         d.translate(this.x, this.y);
         d.rotate(this.rotation);
@@ -83,7 +134,20 @@ class Car {
     move() {
         this.x += this.dir.x * this.v;
         this.y += this.dir.y * this.v;
+        this.checkVel();
         this.actualizeWalls();
+    }
+
+    think() {
+        var vel = 1;
+        var rot = 0.13;
+        var th = 0.8;
+
+        let res = this.brain.out(this.senseDists)
+        if (res[0] > th) this.forward(vel);
+        if (res[1] > th) this.back(vel);
+        if (res[2] > th) this.left(rot);
+        if (res[3] > th) this.right(rot);
     }
 
     action(a) {
@@ -157,11 +221,12 @@ class Car {
         return fitness;
     }
 
+    //TODO: veure si s'ha de borrar
     sex(partner) {
         let dnaX = this.dna; 
         let dnaY = partner.dna; 
         let childDNA = dnaX.crossover(dnaY);
-        return new Car(this.h, this.w, this.len, childDNA);
+        return new Car(this.h, this.w, childDNA);
     }
 
     print() {
@@ -175,7 +240,7 @@ class Car {
     }
 
     copy() {
-        return new Car(this.w, this.h, this.len, this.dna.copy());
+        return new Car(this.w, this.h, this.dna.copy());
     }
 
     mutate(r) {
