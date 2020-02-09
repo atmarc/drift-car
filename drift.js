@@ -162,8 +162,8 @@ var velocity = 1;
 var showRewards = false;
 var showSense = false;
 var pause = false;
-var stepsForGen = 400;
-var nPeople = 1;
+var stepsForGen = 1000;
+var nPeople = 500;
 var population = new Population(nPeople, stepsForGen, routeWalls, checkpoints);
 
 function update () {
@@ -178,8 +178,8 @@ function update () {
             checkpoints[i].show("green");
         }
     }
-
     step = population.run(step);
+
     displayStep.textContent = "Step: " + step;
     displayGen.textContent = "Generation: " + generation;
     displayVel.textContent = "Velocity: " + velocity;

@@ -14,8 +14,14 @@ class Genom {
         this.connections.push(neat.randomConnection());
     }
 
+    getNeuron(innov) {
+        for (let i = 0; i < this.neurons.length; ++i) {
+            if (this.neurons[i].innov == innov) return this.neurons[i];
+        }
+    }
+
     recOut(neuron) {
-        if (this.neurons[neuron].type == "input") {
+        if (this.getNeuron(neuron).type == "input") {
             return this.neurons[neuron].value;
         }
         let sum = 0;
@@ -37,14 +43,13 @@ class Genom {
 
         for (let i = 0; i < values.length; ++i) {
             // Se que les primeres neurones son els inputs
-            // console.log(this.neurons.length)
             this.neurons[i].value = values[i]; 
         }
 
         let returnValues = [];
         for (let i = 0; i < this.neurons.length; ++i) {
             if (this.neurons[i].type == "output") {
-                returnValues.push(this.recOut(i)); 
+                returnValues.push(this.recOut(this.neurons[i].innov)); 
             }
         }
         return returnValues;
@@ -76,7 +81,7 @@ class Genom {
             console.log("The connection with innov: " + connectionInnov + " does not exist.");
             return;
         }
-        this.connections[c.innov].enabled = false;
+        c.enabled = false;
         this.addConnection(c.in, newNeuron.innov, 1);
         this.addConnection(newNeuron.innov, c.out, c.w);
     }
@@ -88,7 +93,7 @@ class Genom {
 
     addRandomNeuron() {
         let i = Math.floor(Math.random()*this.connections.length);
-        this.addNeuron(i);
+        this.addNeuron(this.connections[i].innov);
     }
 
     copy(other) {

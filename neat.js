@@ -49,12 +49,14 @@ class Neat {
         let n1 = Math.floor(Math.random()*this.nInputs);
         let n2 = this.nInputs + Math.floor(Math.random()*this.nOutputs);
         let weight = Math.random();
-        // Si ja existeix la conexió, canvia-la
-        let stop = 100;
-        while (this.connectionExists(n1, n2) && stop > 0) {
-            n1 = Math.floor(Math.random()*this.nInputs);
-            n2 = this.nInputs + Math.floor(Math.random()*this.nOutputs);
-            --stop;
+        // Si ja existeix la conexió, desactivala
+        let c = this.connectionExists(n1, n2);
+        if (c) {
+            for (let i = 0; i < this.connections.length; ++i) {
+                if (c.innov == this.connections[i].innov) {
+                    this.connections[i].enabled = !this.connections[i].enabled; 
+                }
+            }
         }
 
         let index = this.nConnections; 

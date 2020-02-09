@@ -8,26 +8,25 @@ class Car {
     constructor (w, h, routeWalls, brain) {
         this.w = w;
         this.h = h;
-        this.dir = {x: 0, y: 1};
         this.drift = 20;
-        this.deadAt = 400;
-        this.checkpoints = [];
         this.senseWalls = [];
         this.senseDists = [];
         this.senseDots = [];
         this.visionLen = 400;
-        if (brain) this.brain = brain;
+        this.brain = brain;
         this.route = routeWalls;
-        this.start();
+        this.restart();
         this.actualizeWalls();
     }
 
-    start() {
+    restart() {
+        this.checkpoints = [];
         this.x = 158;
         this.y = 239;
         this.rotation = -1.56;
         this.dir = {x: 1, y: 0};
         this.v = 0;
+        this.deadAt = 400;
     }
     
     actualizeRouteWalls() {
@@ -216,7 +215,7 @@ class Car {
         for (let i = 0; i < c.length; ++i) {
             let wall = c[i];
             let t = wall[1];
-            fitness += ((wall[0] + 1)*10)/(t);
+            fitness += ((wall[0] + 1)*10)/(t/2);
         }
         return fitness;
     }

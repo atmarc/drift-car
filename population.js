@@ -61,7 +61,6 @@ class Population {
         let fitnessArray = new Array(this.cars.length);
         let maxFitness = 0;
         let maxFitCar = 0;
-
         for (let i = 0; i < this.cars.length; ++i) {
             let aux = this.cars[i].fitness();
             fitnessArray[i] = aux;
@@ -70,6 +69,7 @@ class Population {
                 maxFitCar = i;
             }
         }
+        this.maxFitCar = maxFitCar;
         
         this.matpool = [];
         // Normalize weights and create matpool
@@ -78,17 +78,17 @@ class Population {
             for (let x = 0; x < vegades; ++x) {
                 this.matpool.push(i);
             }
-        } 
-        this.maxFitCar = maxFitCar;
+        }
+        console.log("Max fitness: " + maxFitness)
     }
 
     reproduction() {
         let bestBrain = this.cars[this.maxFitCar].brain;
         for (let i = 0; i < this.n; ++i) {
-            this.cars[i].brain.copy(bestBrain);
+            if (i != this.maxFitCar) this.cars[i].brain.copy(bestBrain);
             this.cars[i].brain.mutate();
+            this.cars[i].restart();
         }
-
         // Tots els cotxes tornen a estar vius 
         this.alive.fill(true);
     }
