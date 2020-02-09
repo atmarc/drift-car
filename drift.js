@@ -142,7 +142,7 @@ function checkKeys() {
         pause = !pause;
         if (pause) {
             d.stopInterval();
-            d.setInterval(checkVel, 10);
+            d.setInterval(checkKeys, 10);
         }
         else {
             d.stopInterval();
@@ -162,8 +162,9 @@ var velocity = 1;
 var showRewards = false;
 var showSense = false;
 var pause = false;
-var stepsForGen = 1200;
-var population = new Population(2000, stepsForGen, routeWalls, checkpoints);
+var stepsForGen = 400;
+var nPeople = 1;
+var population = new Population(nPeople, stepsForGen, routeWalls, checkpoints);
 
 function update () {
     d.clearAll();
@@ -171,7 +172,6 @@ function update () {
     drawRoute();    
     checkKeys();
     moveCarKeys();
-
     if (showRewards) {
         // Pintar checkpoints  
         for (let i = 0; i < checkpoints.length; i++) {
@@ -179,11 +179,10 @@ function update () {
         }
     }
 
+    step = population.run(step);
     displayStep.textContent = "Step: " + step;
     displayGen.textContent = "Generation: " + generation;
     displayVel.textContent = "Velocity: " + velocity;
-
-    step = population.run(step);
 
     if (step >= stepsForGen) {
         step = 0;

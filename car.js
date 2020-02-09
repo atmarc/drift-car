@@ -220,34 +220,4 @@ class Car {
         }
         return fitness;
     }
-
-    //TODO: veure si s'ha de borrar
-    sex(partner) {
-        let dnaX = this.dna; 
-        let dnaY = partner.dna; 
-        let childDNA = dnaX.crossover(dnaY);
-        return new Car(this.h, this.w, childDNA);
-    }
-
-    print() {
-        let gens = this.dna.gens;
-        let s = "[";
-        for (let i = 0; i < gens.length; ++i) {
-            s += gens[i] + ',';
-        }
-        s += ']';
-        console.log(s);
-    }
-
-    copy() {
-        return new Car(this.w, this.h, this.dna.copy());
-    }
-
-    mutate(r) {
-        for (let i = 0; i < this.dna.gens.length; ++i) {
-            if (Math.random() < r) {
-                this.dna.gens[i] = Math.floor(Math.random()*4);
-            }
-        }
-    }
 }

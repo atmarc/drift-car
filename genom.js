@@ -37,6 +37,7 @@ class Genom {
 
         for (let i = 0; i < values.length; ++i) {
             // Se que les primeres neurones son els inputs
+            // console.log(this.neurons.length)
             this.neurons[i].value = values[i]; 
         }
 
@@ -79,5 +80,41 @@ class Genom {
         this.addConnection(c.in, newNeuron.innov, 1);
         this.addConnection(newNeuron.innov, c.out, c.w);
     }
+    
+    changeRandomWeight() {
+        let i = Math.floor(Math.random()*this.connections.length);
+        this.connections[i].w =Math.random();
+    }
 
+    addRandomNeuron() {
+        let i = Math.floor(Math.random()*this.connections.length);
+        this.addNeuron(i);
+    }
+
+    copy(other) {
+        this.neurons = []
+        this.connections = []
+        for (let i = 0; i < other.neurons.length; ++i) {
+            let n = other.neurons[i];
+            this.neurons.push({innov: n.innov, type: n.type});
+        }
+        for (let i = 0; i < other.connections.length; ++i) {
+            let c = other.connections[i];
+            this.connections.push({
+                innov: c.innov, in: c.in, out: c.out, w: c.w, enabled: c.enabled
+            });
+        }
+    }
+
+    mutate() {
+        if (Math.random() < 0.01) {
+            this.addRandomConnection();
+        }
+        if (Math.random() < 0.01) {
+            this.addRandomNeuron();
+        }
+        if (Math.random() < 0.01) {
+            this.changeRandomWeight();
+        }
+    }
 }

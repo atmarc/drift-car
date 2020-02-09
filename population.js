@@ -5,10 +5,10 @@ class Population {
         this.walls = walls;
         this.checkpoints = checkpoints;
         this.cars = new Array(n);
-        this.neat = new Neat(8, 4);
+        this.neat = new Neat(8, 4, n);
         this.matpool = [];
         for (let i = 0; i < this.n; ++i) {
-            this.cars[i] = new Car(20, 40, this.walls);
+            this.cars[i] = new Car(20, 40, this.walls, this.neat.genoms[i]);
         }
         this.alive = new Array(n);
         this.alive.fill(true);
@@ -40,7 +40,7 @@ class Population {
         for (let i = 0; i < this.n; ++i) {
             if (this.alive[i]) {
                 end = false;
-                this.cars[i].action(this.cars[i].dna.gens[s]);
+                this.cars[i].think();
                 this.cars[i].move();
                 this.cars[i].show("green");
                 this.cars[i].checkVel();
@@ -79,28 +79,17 @@ class Population {
                 this.matpool.push(i);
             }
         } 
-        console.log('-----------------------------------------');
-        this.cars[maxFitCar].print();
         this.maxFitCar = maxFitCar;
-        console.log("Max fit: " + maxFitness);
     }
 
     reproduction() {
-        let newPopulation = new Array(this.n);
+        let bestBrain = this.cars[this.maxFitCar].brain;
         for (let i = 0; i < this.n; ++i) {
-            // let father = this.cars[Math.floor(Math.random()*this.n)];
-            // let mother = this.cars[Math.floor(Math.random()*this.n)];
-            
-            // let child = mother.sex(father);
-            // newPopulation[i] = child;
-            
-            let newCar = this.cars[this.maxFitCar].copy();
-            newCar.mutate(0.01);
-            newPopulation[i] = newCar;
-
+            this.cars[i].brain.copy(bestBrain);
+            this.cars[i].brain.mutate();
         }
 
-        this.cars = newPopulation;
+        // Tots els cotxes tornen a estar vius 
         this.alive.fill(true);
     }
 }
