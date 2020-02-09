@@ -5,17 +5,19 @@ function dist(x1, y1, x2, y2) {
 }
 
 class Car {
-    constructor (xPos, yPos, w, h) {
-        this.x = xPos;
-        this.y = yPos;
+    constructor (w, h, len, dna) {
         this.w = w;
         this.h = h;
-        this.v = 0;
         this.dir = {x: 0, y: 1};
-        this.rotation = 0;
         this.drift = 20;
-        this.actualizeWalls();
         this.start();
+        this.actualizeWalls();
+        this.deadAt = 400;
+        this.checkpoints = [];
+        if (dna) this.dna = dna;
+        else {
+            this.dna = new DNA(len);
+        }
     }
 
     start() {
@@ -23,6 +25,7 @@ class Car {
         this.y = 239;
         this.rotation = -1.56;
         this.dir = {x: 1, y: 0};
+        this.v = 0;
     }
 
     actualizeWalls() {
@@ -61,7 +64,7 @@ class Car {
         d.rotate(this.rotation);
         
         // Cotxe
-        d.rectangle(0, + this.drift, this.w, this.h, {color: color});
+        d.rectangle(0, + this.drift, this.w, this.h, {color: color, alpha: 0.7});
         
         // --------------------------- Posible decorations ---------------------------
         // Llums
@@ -83,15 +86,28 @@ class Car {
         this.actualizeWalls();
     }
 
+    action(a) {
+        var vel = 1;
+        var rot = 0.13;
+        
+        if (a == 0) this.forward(vel);
+        else if (a == 1) this.back(vel);
+        else if (a == 2) this.left(rot);
+        else if (a == 3) this.right(rot);
+        else if (a == 4) {
+            // Nothing
+        }
+    }
+
     checkVel() {
         var a = 0.5;
-        if (car.v > 0) {
-            if (car.v >= a) car.v = car.v - a;
-            if (car.v < a) car.v = 0; 
+        if (this.v > 0) {
+            if (this.v >= a) this.v = this.v - a;
+            if (this.v < a) this.v = 0; 
         }
-        else if (car.v < 0) {
-            if (car.v <= -a) car.v = car.v + a;
-            if (car.v > -a) car.v = 0; 
+        else if (this.v < 0) {
+            if (this.v <= -a) this.v = this.v + a;
+            if (this.v > -a) this.v = 0; 
         }
     }
 
@@ -123,8 +139,50 @@ class Car {
 
     right(rot) {
         const halfPI = Math.PI/2;
-        car.rotation += rot;
-        car.dir.x = Math.cos(halfPI + car.rotation);
-        car.dir.y = Math.sin(halfPI + car.rotation);
+        this.rotation += rot;
+        this.dir.x = Math.cos(halfPI + this.rotation);
+        this.dir.y = Math.sin(halfPI + this.rotation);
+    }
+
+    fitness() {
+        let c = this.checkpoints;
+        if (c[0] == undefined || c[0][0] != 0) return 0;
+        let fitness = 0;
+
+        for (let i = 0; i < c.length; ++i) {
+            let wall = c[i];
+            let t = wall[1];
+            fitness += ((wall[0] + 1)*10)/(t);
+        }
+        return fitness;
+    }
+
+    sex(partner) {
+        let dnaX = this.dna; 
+        let dnaY = partner.dna; 
+        let childDNA = dnaX.crossover(dnaY);
+        return new Car(this.h, this.w, this.len, childDNA);
+    }
+
+    print() {
+        let gens = this.dna.gens;
+        let s = "[";
+        for (let i = 0; i < gens.length; ++i) {
+            s += gens[i] + ',';
+        }
+        s += ']';
+        console.log(s);
+    }
+
+    copy() {
+        return new Car(this.w, this.h, this.len, this.dna.copy());
+    }
+
+    mutate(r) {
+        for (let i = 0; i < this.dna.gens.length; ++i) {
+            if (Math.random() < r) {
+                this.dna.gens[i] = Math.floor(Math.random()*4);
+            }
+        }
     }
 }

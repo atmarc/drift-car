@@ -6,8 +6,6 @@ canvas.height = document.documentElement.clientHeight - 50;
 const d = new drawTool("myCanvas");
 d.translate(d.width/2, d.height/2);
 
-var car = new Car(0, 0, 20, 40);
-
 // Control de tecles
 var keys = {};
 onkeydown = onkeyup = function(e){
@@ -15,48 +13,49 @@ onkeydown = onkeyup = function(e){
     keys[e.keyCode] = e.type == 'keydown';
 }
 
-function checkKeys() {
-    var vel = 1;
-    var rot = 0.13;
-    // Up
-    if (keys[38]) {
-        car.forward(vel);
-    }
-    // Down
-    if (keys[40]) {
-        car.back(vel);
-    }
-    // Left
-    if (keys[37]) {
-        car.left(rot);
-    }
-    // Right
-    if (keys[39]) {
-        car.right(rot);
-    }
-}
+// function checkKeys() {
+//     // Up
+//     if (keys[38]) {
+//         car.action(0);
+//     }
+//     // Down
+//     if (keys[40]) {
+//         car.action(1);
+//     }
+//     // Left
+//     if (keys[37]) {
+//         car.action(2);
+//     }
+//     // Right
+//     if (keys[39]) {
+//         car.action(3);
+//     }
+// }
 
-var clicat = false
-var roadWalls = []
-var temp = {x:0, y:0}
+// var clicat = false
+// var checkpoints = []
+// var temp = {x:0, y:0}
 
-function getMousePos(canvas, evt) {
-    var rect = canvas.getBoundingClientRect();
-    return {
-      x: evt.clientX - rect.left,
-      y: evt.clientY - rect.top
-    };
-}
+// function getMousePos(canvas, evt) {
+//     var rect = canvas.getBoundingClientRect();
+//     return {
+//       x: evt.clientX - rect.left,
+//       y: evt.clientY - rect.top
+//     };
+// }
 
 // onclick = (e) => {
 //     let pos = getMousePos(d.canv, e);
+//     pos.x -= d.width/2;
+//     pos.y -= d.height/2;
+
 //     if (clicat) {
-//         roadWalls.push([temp.x, temp.y, pos.x, pos.y]);
+//         checkpoints.push([temp.x, temp.y, pos.x, pos.y]);
 //         clicat = false;
 //         console.log('---------------------')
 //         var str = "["
-//         for (let i = 0; i < roadWalls.length; ++i) {
-//             str += roadWalls[i] + ',';
+//         for (let i = 0; i < checkpoints.length; ++i) {
+//             str += checkpoints[i] + ',';
 //         }
 //         console.log(str + ']');
 //     }
@@ -87,25 +86,101 @@ function setUpRoute () {
     }
 }
 
-
-function update () {
-    d.clearAll();
-    checkKeys();
-    car.move();
-    
-    console.log(car.dir)
-
-    var c = "green";
-    for (let i = 0; i < routeWalls.length; ++i) {
-        if (car.collides(routeWalls[i])) {
-            c = "red";
-        }  
-        routeWalls[i].show();
+var checkpoints = [];
+function setUpCheckpoints() {
+    let dots = [127,201.5,131,284.5,100,198.5,102,285.5,65,200.5,66,288.5,35,290.5,33,198.5,-6,197.5,-5,288.5,-45,199.5,-38,286.5,-80,197.5,-78,285.5,-112,198.5,-116,282.5,-145,196.5,-155,281.5,-184,194.5,-187,280.5,-216,193.5,-221,277.5,-249,194.5,-254,274.5,-278,192.5,-286,272.5,-316,192.5,-317,267.5,-345,190.5,-360,262.5,-374,183.5,-397,250.5,-403,170.5,-437,241.5,-430,152.5,-474,231.5,-497,212.5,-448,135.5,-461,117.5,-528,174.5,-468,106.5,-553,143.5,-557,105.5,-468,86.5,-468,63.5,-555,58.5,-555,25.5,-469,33.5,-550,-9.5,-469,1.5,-543,-53.5,-452,-35.5,-441,-51.5,-536,-94.5,-520,-114.5,-431,-76.5,-492,-148.5,-414,-82.5,-443,-171.5,-401,-88.5,-396,-187.5,-365,-97.5,-365,-192.5,-343,-104.5,-322,-199.5,-308,-113.5,-282,-198.5,-280,-116.5,-223,-204.5,-227,-118.5,-188,-201.5,-181,-119.5,-148,-198.5,-146,-122.5,-110,-195.5,-106,-122.5,-74,-195.5,-65,-122.5,-25,-194.5,-19,-124.5,13,-194.5,17,-119.5,52,-193.5,57,-119.5,97,-189.5,97,-114.5,126,-186.5,124,-112.5,166,-179.5,161,-111.5,197,-173.5,192,-104.5,233,-168.5,225,-97.5,265,-159.5,243,-93.5,262,-92.5,309,-157.5,289,-83.5,370,-137.5,304,-68.5,412,-99.5,305,-55.5,435,-54.5,300,-49.5,416,15.5,287,-47.5,356,27.5,267,-48.5,285,36.5,233,-50.5,236,32.5,195,-51.5,197,26.5,162,-52.5,160,19.5,117,22.5,120,-54.5,87,-52.5,89,18.5,53,18.5,57,-55.5,28,-54.5,19,18.5,-8,-53.5,-10,16.5,-48,-54.5,-44,12.5,-85,-55.5,-86,2.5,-112,-57.5,-114,3.5,-143,-58.5,-143,8.5,-189,-60.5,-181,11.5,-227,-65.5,-213,17.5,-239,18.5,-300,-65.5,-258,32.5,-358,-36.5,-261,46.5,-392,21.5,-255,60.5,-404,81.5,-241,75.5,-351,126.5,-225,82.5,-272,149.5,-195,84.5,-209,151.5,-147,94.5,-161,157.5,-98,104.5,-108,163.5,-39,113.5,-37,165.5,3,111.5,1,166.5,59,110.5,55,173.5,107,119.5,112,174.5,147,125.5,148,181.5,181,130.5,185,183.5,219,133.5,222,182.5,246,138.5,250,176.5,283,136.5,299,185.5,323,132.5,331,178.5,355,123.5,369,182.5,379,116.5,421,157.5,417,96.5,453,139.5,436,82.5,497,106.5,447,51.5,513,65.5,455,14.5,528,21.5,459,-25.5,535,-8.5,460,-71.5,546,-60.5,459,-111.5,553,-92.5,464,-158.5,559,-138.5,549,-161.5,469,-242.5,561,-151.5,549,-268.5,563,-140.5,616,-257.5,566,-136.5,653,-238.5,567,-121.5,658,-168.5,573,-111.5,657,-108.5,571,-75.5,654,-74.5,571,-44.5,653,-35.5,569,-9.5,656,-5.5,566,18.5,655,32.5,566,55.5,657,83.5,554,82.5,650,117.5,550,113.5,643,152.5,538,133.5,628,204.5,513,147.5,591,233.5,476,167.5,513,241.5,435,189.5,461,261.5,405,195.5,411,267.5,369,196.5,376,264.5,331,199.5,340,276.5,290,197.5,303,274.5,250,194.5,259,267.5,215,200.5,229,280.5]
+        for (let i = 0; i < dots.length; i += 4) {
+        checkpoints.push(new Wall(dots[i], dots[i + 1], dots[i + 2], dots[i + 3]));
     }
-    car.show(c);
-    car.checkVel();
 }
 
 
+var stepsForGen = 1200;
+
+var population = new Population(2000, stepsForGen, routeWalls, checkpoints);
+var displayStep = document.getElementById("steps");
+var displayGen = document.getElementById("generation");
+var displayVel = document.getElementById("velocity");
+
+var generation = 0;
+var step = 0;
+var velocity = 1;
+var showRewards = true;
+var pause = false;
+function sleep(delay) {
+    var start = new Date().getTime();
+    while (new Date().getTime() < start + delay);
+}
+
+function checkVel() {
+    // 1
+    if (keys[49]) {
+        velocity = 1;
+        d.stopInterval();
+        d.setInterval(update, 20);
+    }
+    // 2
+    if (keys[50]) {
+        velocity = 2;
+        d.stopInterval();
+        d.setInterval(update, 10);
+    }
+    // 3
+    if (keys[51]) {
+        velocity = 3;
+        d.stopInterval();
+        d.setInterval(update, 5);
+    }
+    // W
+    if (keys[87]) {
+        showRewards = !showRewards;
+        sleep(100);
+    }
+
+    // P
+    if (keys[80]) {
+        pause = !pause;
+        if (pause) {
+            d.stopInterval();
+            d.setInterval(checkVel, 10);
+        }
+        else {
+            d.stopInterval();
+            d.setInterval(update, 10);
+        }   
+        sleep(100);
+    }
+}
+
+function update () {
+    d.clearAll();
+    checkVel();
+    if (showRewards) {
+        // Pintar checkpoints  
+        for (let i = 0; i < checkpoints.length; i++) {
+            checkpoints[i].show("green");
+        }
+    }
+
+    // Pintar carretera  
+    for (let i = 0; i < routeWalls.length; ++i) {
+        routeWalls[i].show();
+    }
+
+    step = population.run(step);
+    
+    displayStep.textContent = "Step: " + step;
+    displayGen.textContent = "Generation: " + generation;
+    displayVel.textContent = "Velocity: " + velocity;
+
+    if (step >= stepsForGen) {
+        step = 0;
+        ++generation;
+        population.selection();
+        population.reproduction();
+    }
+}
+
 setUpRoute();
+setUpCheckpoints();
 d.setInterval(update, 20);

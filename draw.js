@@ -21,6 +21,10 @@ function drawTool (canvas) {
     this.rectangle = (x, y, w, h, options) => {
 
         var opt = initOptions(options)
+        
+        if (opt.alpha) {
+            this.ctx.globalAlpha = opt.alpha;
+        }
 
         this.ctx.fillStyle = opt.color;
         var posX, posY;
@@ -34,6 +38,10 @@ function drawTool (canvas) {
         }
 
         if (opt.fill) this.ctx.fillRect(posX, posY, w, h);
+
+        if (opt.alpha) {
+            this.ctx.globalAlpha = 1;
+        }
 
         if (opt.stroke) {
             this.ctx.beginPath();
@@ -118,7 +126,11 @@ function drawTool (canvas) {
     }
 
     this.setInterval = (fun, frames) => {
-        setInterval(fun, frames);
+        this.interalId = setInterval(fun, frames);
+    }
+
+    this.stopInterval = () => {
+        clearInterval(this.interalId);
     }
 
     this.rotate = (angle) => {
