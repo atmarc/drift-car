@@ -62,7 +62,17 @@ class Genom {
 
     addRandomConnection() {
         let c = this.neat.randomConnection();
-        this.connections.push(c);
+        let existeix = false;
+        for (let i = 0; i < this.connections.length; ++i) {
+            let aux = this.connections[i];
+            if (aux.innov == c.innov) {
+                this.connections[i] = !this.connections[i];
+                existeix = true;
+            }
+        }
+        if (!existeix) {
+            this.connections.push(c);
+        }
     }
 
     addNeuron(connectionInnov) {
@@ -91,6 +101,7 @@ class Genom {
         this.connections[i].w =Math.random();
     }
 
+    // TODO: Està malament
     addRandomNeuron() {
         let i = Math.floor(Math.random()*this.connections.length);
         this.addNeuron(this.connections[i].innov);
