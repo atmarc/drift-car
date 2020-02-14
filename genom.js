@@ -77,7 +77,7 @@ class Genom {
 
     addNeuron(connectionInnov) {
         // Creem la nova neurona
-        let newNeuron = this.neat.addNeuron(this.neurons);
+        let newNeuron = this.neat.addNeuron(this.neurons.length);
         this.neurons.push(newNeuron);
  
         let c = undefined;
@@ -101,7 +101,6 @@ class Genom {
         this.connections[i].w =Math.random();
     }
 
-    // TODO: Està malament
     addRandomNeuron() {
         let i = Math.floor(Math.random()*this.connections.length);
         this.addNeuron(this.connections[i].innov);
@@ -132,5 +131,20 @@ class Genom {
         if (Math.random() < 0.01) {
             this.changeRandomWeight();
         }
+    }
+
+    getAdjacents(neuron) {
+        let llista = []
+        for (let i = 0; i < this.connections.length; ++i) {
+            let c = this.connections[i];
+            if (c.in == neuron) {
+                llista.push(c.out);
+            }
+        }
+        return llista;
+    }
+
+    print() {
+        actualitzaDibuix();
     }
 }

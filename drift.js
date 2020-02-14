@@ -162,8 +162,8 @@ var velocity = 1;
 var showRewards = false;
 var showSense = false;
 var pause = false;
-var stepsForGen = 1000;
-var nPeople = 500;
+var stepsForGen = 200;
+var nPeople = 10;
 var population = new Population(nPeople, stepsForGen, routeWalls, checkpoints);
 
 function update () {

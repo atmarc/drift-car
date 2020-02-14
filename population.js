@@ -84,6 +84,7 @@ class Population {
 
     reproduction() {
         let bestBrain = this.cars[this.maxFitCar].brain;
+        bestBrain.print();
         for (let i = 0; i < this.n; ++i) {
             if (i != this.maxFitCar) this.cars[i].brain.copy(bestBrain);
             this.cars[i].brain.mutate();
