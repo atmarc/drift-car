@@ -10,8 +10,8 @@ class Genom {
         this.neat = neat;
         this.nInputs = nInputs;
         this.nOutputs = nOutputs;
-
-        this.connections.push(neat.randomConnection());
+        this.outValues = {};
+        this.connections.push(neat.randomConnection(this));
     }
 
     getNeuron(innov) {
@@ -28,14 +28,23 @@ class Genom {
         for (let i in this.connections) {
             let c = this.connections[i];
             if (c.out == neuron && c.enabled) {
-                sum += this.recOut(c.in) * c.w;
+                // DP per fer-ho eficient
+                if (this.outValues[c.in] != undefined) {
+                    sum += this.outValues[c.in] * c.w;
+                }
+                else {
+                    sum += this.recOut(c.in) * c.w;
+                } 
             }
         }
-        // if (this.neurons[neuron].type == "output") return sum;
-        return sigmoid(sum + this.bias);
+
+        let outputValue = sigmoid(sum + this.bias); 
+        this.outValues[neuron] = outputValue;
+        return outputValue;
     }
     
     out(values) {
+        this.outValues = {} 
         if (!values || this.nInputs != values.length) {
             console.log("There have to be " + this.nInputs + " values, one for each input node.");
             return;
@@ -61,7 +70,7 @@ class Genom {
     }
 
     addRandomConnection() {
-        let c = this.neat.randomConnection();
+        let c = this.neat.randomConnection(this);
         let existeix = false;
         for (let i = 0; i < this.connections.length; ++i) {
             let aux = this.connections[i];
@@ -122,13 +131,13 @@ class Genom {
     }
 
     mutate() {
-        if (Math.random() < 0.01) {
+        if (Math.random() < 0.05) {
             this.addRandomConnection();
         }
-        if (Math.random() < 0.01) {
+        if (Math.random() < 0.05) {
             this.addRandomNeuron();
         }
-        if (Math.random() < 0.01) {
+        if (Math.random() < 0.05) {
             this.changeRandomWeight();
         }
     }

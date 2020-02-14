@@ -163,7 +163,7 @@ var showRewards = false;
 var showSense = false;
 var pause = false;
 var stepsForGen = 200;
-var nPeople = 10;
+var nPeople = 100;
 var population = new Population(nPeople, stepsForGen, routeWalls, checkpoints);
 
 function update () {

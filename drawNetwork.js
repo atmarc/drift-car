@@ -12,7 +12,12 @@ function actualitzaDibuix() {
     let conn = [];
     for (let i = 0; i < brain.connections.length; ++i) {
         let e = brain.connections[i];
-        conn.push({from: e.in, to: e.out});
+        if (e.enabled) {
+            conn.push({from: e.in, to: e.out, label: e.innov, color:{color:"#0000FF"}});
+        }
+        else {
+            conn.push({from: e.in, to: e.out, label: e.innov, color:{color:"#FF0000"}});
+        }
     }
 
     var nodes = new vis.DataSet(neurons);

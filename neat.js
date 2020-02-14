@@ -45,9 +45,48 @@ class Neat {
         return false;
     }
 
-    randomConnection() {
-        let n1 = Math.floor(Math.random()*this.nInputs);
-        let n2 = this.nInputs + Math.floor(Math.random()*this.nOutputs);
+    isCyclicRec(genom, i, visited, stack) {
+        
+    }
+
+    isCyclic(genom, n1, n2) {
+        let visited = new Array(genom.neurons.length);
+        let stack = new Array(genom.neurons.length);
+        visited.fill(true);
+        stack.fill(true);
+        genom.connections.push({
+            innov: this.nConnections + 1, in: n1, out: n2, w: 0, enabled: true
+        });
+
+        for (let i = 0; i < genom.neurons.length; i++) {
+            if (isCyclicRec(genom, i, visited, stack)) {
+                genom.connections.pop();
+                return true;
+            }
+        }
+
+        genom.connections.pop();
+        return false; 
+    }
+    
+    // Comprova
+    randomConnection(genom) {
+        let n1 = Math.floor(Math.random()*genom.neurons.length);
+        let n2 = Math.floor(Math.random()*genom.neurons.length);
+        let malament = true;
+        while(malament) {
+            if (genom.neurons[n1].type == "output") {
+                n1 = Math.floor(Math.random()*genom.neurons.length);
+            }
+            else if (genom.neurons[n2].type == "input") {
+                n2 = Math.floor(Math.random()*genom.neurons.length);
+            }
+            else if (isCyclic(genom, n1, n2)) {
+                n1 = Math.floor(Math.random()*genom.neurons.length);
+                n2 = Math.floor(Math.random()*genom.neurons.length);
+            }
+            else malament = false;
+        }
         let weight = Math.random();
         // Si ja existeix la conexió, la tornem
         let c = this.connectionExists(n1, n2);
