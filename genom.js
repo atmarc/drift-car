@@ -2,6 +2,12 @@ var sigmoid = (x) => {
     return 1 / (1 + Math.exp(-x));
 }
 
+var tanh = (x) => {
+    let e1 = Math.exp(x);
+    let e2 = Math.exp(-x);
+    return (e1 - e2) / (e1 + e2);
+}
+
 class Genom {
     constructor(neat, neurons, nInputs, nOutputs) {
         this.bias = 1
@@ -64,6 +70,14 @@ class Genom {
         return returnValues;
     }
 
+    connectionExists(n1, n2) {
+        for (let i = 0; i < this.connections.length; ++i) {
+            let c = this.connections[i];
+            if (c.in == n1 && c.out == n2) return c;
+        }
+        return false;
+    }
+
     addConnection(n1, n2, w) {
         let c = this.neat.addConnection(n1, n2, w);
         this.connections.push(c);
@@ -71,15 +85,10 @@ class Genom {
 
     addRandomConnection() {
         let c = this.neat.randomConnection(this);
-        let existeix = false;
-        for (let i = 0; i < this.connections.length; ++i) {
-            let aux = this.connections[i];
-            if (aux.innov == c.innov) {
-                this.connections[i] = !this.connections[i];
-                existeix = true;
-            }
-        }
-        if (!existeix) {
+        let exist = this.connectionExists(c.in, c.out);
+        if (exist != false) {
+            exist.enabled = !exist.enabled;
+        } else {
             this.connections.push(c);
         }
     }
@@ -107,7 +116,7 @@ class Genom {
     
     changeRandomWeight() {
         let i = Math.floor(Math.random()*this.connections.length);
-        this.connections[i].w =Math.random();
+        this.connections[i].w = Math.random();
     }
 
     addRandomNeuron() {

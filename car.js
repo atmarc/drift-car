@@ -215,7 +215,8 @@ class Car {
         for (let i = 0; i < c.length; ++i) {
             let wall = c[i];
             let t = wall[1];
-            fitness += ((wall[0] + 1)*10)/(t/2);
+            let nWalls = wall[0];
+            fitness += (Math.pow(2, nWalls + 1))*(1000/t);
         }
         return fitness;
     }

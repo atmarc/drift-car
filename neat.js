@@ -45,8 +45,25 @@ class Neat {
         return false;
     }
 
-    isCyclicRec(genom, i, visited, stack) {
-        
+    isCyclicRec(genom, v, visited, stack) {
+        if(!visited[v]) {
+            visited[v] = true;
+            stack[v] = true;
+            
+            for (let i = 0; i < genom.connections.length; ++i) {
+                // Recorrem tots els adjacents a v
+                let c = genom.connections[i];
+                if (c.in == v) {
+                    if (!visited[c.out] && this.isCyclicRec(genom, c.out, visited, stack)) {
+                        return true;
+                    }
+                    else if (stack[c.out])
+                        return true;
+                }
+            }
+        }
+        stack[v] = false;
+        return false;
     }
 
     isCyclic(genom, n1, n2) {
@@ -59,7 +76,7 @@ class Neat {
         });
 
         for (let i = 0; i < genom.neurons.length; i++) {
-            if (isCyclicRec(genom, i, visited, stack)) {
+            if (this.isCyclicRec(genom, i, visited, stack)) {
                 genom.connections.pop();
                 return true;
             }
@@ -71,26 +88,31 @@ class Neat {
     
     // Comprova
     randomConnection(genom) {
-        let n1 = Math.floor(Math.random()*genom.neurons.length);
-        let n2 = Math.floor(Math.random()*genom.neurons.length);
+        let numNeurons = genom.neurons.length;
+        let n1 = Math.floor(Math.random()*numNeurons);
+        let n2 = Math.floor(Math.random()*numNeurons);
         let malament = true;
         while(malament) {
             if (genom.neurons[n1].type == "output") {
-                n1 = Math.floor(Math.random()*genom.neurons.length);
+                n1 = Math.floor(Math.random()*numNeurons);
             }
             else if (genom.neurons[n2].type == "input") {
-                n2 = Math.floor(Math.random()*genom.neurons.length);
+                n2 = Math.floor(Math.random()*numNeurons);
             }
-            else if (isCyclic(genom, n1, n2)) {
-                n1 = Math.floor(Math.random()*genom.neurons.length);
-                n2 = Math.floor(Math.random()*genom.neurons.length);
+            else if (n1 == n2) {
+                n2 = Math.floor(Math.random()*numNeurons);
+            }
+            else if (this.isCyclic(genom, n1, n2)) {
+                n1 = Math.floor(Math.random()*numNeurons);
+                n2 = Math.floor(Math.random()*numNeurons);
             }
             else malament = false;
         }
+
         let weight = Math.random();
         // Si ja existeix la conexió, la tornem
         let c = this.connectionExists(n1, n2);
-        if (c) {
+        if (c != false) {
             return c
         }
         // Sino la tornem a crear
@@ -104,8 +126,8 @@ class Neat {
 
     addConnection(n1, n2, w) {
 
-        let c = this.connectionExists(n2, n2);
-        if (c) {
+        let c = this.connectionExists(n1, n2);
+        if (c != false) {
             c.w = w;
             return c;
         }
@@ -121,7 +143,7 @@ class Neat {
 
     addNeuron(innov) {
         let n = this.neuronExists(innov);
-        if (n) {
+        if (n != false) {
             return n;
         }
         

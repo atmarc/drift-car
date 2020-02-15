@@ -162,7 +162,7 @@ var velocity = 1;
 var showRewards = false;
 var showSense = false;
 var pause = false;
-var stepsForGen = 200;
+var stepsForGen = 1000;
 var nPeople = 100;
 var population = new Population(nPeople, stepsForGen, routeWalls, checkpoints);
 
@@ -171,7 +171,7 @@ function update () {
 
     drawRoute();    
     checkKeys();
-    moveCarKeys();
+    // moveCarKeys();
     if (showRewards) {
         // Pintar checkpoints  
         for (let i = 0; i < checkpoints.length; i++) {
