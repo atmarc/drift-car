@@ -49,15 +49,14 @@ class Neat {
         if(!visited[v]) {
             visited[v] = true;
             stack[v] = true;
-            
             for (let i = 0; i < genom.connections.length; ++i) {
                 // Recorrem tots els adjacents a v
                 let c = genom.connections[i];
-                if (c.in == v) {
-                    if (!visited[c.out] && this.isCyclicRec(genom, c.out, visited, stack)) {
+                if (c.out == v) {
+                    if (!visited[c.in] && this.isCyclicRec(genom, c.in, visited, stack)) {
                         return true;
                     }
-                    else if (stack[c.out])
+                    else if (stack[c.in])
                         return true;
                 }
             }
@@ -67,16 +66,21 @@ class Neat {
     }
 
     isCyclic(genom, n1, n2) {
-        let visited = new Array(genom.neurons.length);
-        let stack = new Array(genom.neurons.length);
-        visited.fill(true);
-        stack.fill(true);
+        var visited = new Array(genom.neurons.length);
+        var stack = new Array(genom.neurons.length);
+        visited.fill(false);
+        stack.fill(false);
         genom.connections.push({
             innov: this.nConnections + 1, in: n1, out: n2, w: 0, enabled: true
         });
 
+
         for (let i = 0; i < genom.neurons.length; i++) {
             if (this.isCyclicRec(genom, i, visited, stack)) {
+                console.log("------------------------------");
+                console.log("Cyclic: ");
+                console.log(genom);
+                console.log("------------------------------");
                 genom.connections.pop();
                 return true;
             }
@@ -101,6 +105,10 @@ class Neat {
             }
             else if (n1 == n2) {
                 n2 = Math.floor(Math.random()*numNeurons);
+            }
+            else if (genom.connectionExists(n2, n1)) {
+                n2 = Math.floor(Math.random()*numNeurons);
+                n1 = Math.floor(Math.random()*numNeurons);
             }
             else if (this.isCyclic(genom, n1, n2)) {
                 n1 = Math.floor(Math.random()*numNeurons);

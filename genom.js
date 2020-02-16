@@ -28,6 +28,7 @@ class Genom {
 
     recOut(neuron) {
         if (this.getNeuron(neuron).type == "input") {
+            this.outValues[neuron] = this.neurons[neuron].value;
             return this.neurons[neuron].value;
         }
         let sum = 0;
