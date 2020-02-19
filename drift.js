@@ -137,6 +137,12 @@ function checkKeys() {
         sleep(100);
     }
 
+    // N - next gen
+    if (keys[78]) {
+        nextGen = true;
+        sleep(100);
+    }
+
     // P - pause
     if (keys[80]) {
         pause = !pause;
@@ -162,7 +168,8 @@ var velocity = 1;
 var showRewards = false;
 var showSense = false;
 var pause = false;
-var stepsForGen = 1000;
+var nextGen = false;
+var stepsForGen = 800;
 var nPeople = 100;
 var population = new Population(nPeople, stepsForGen, routeWalls, checkpoints);
 
@@ -184,7 +191,8 @@ function update () {
     displayGen.textContent = "Generation: " + generation;
     displayVel.textContent = "Velocity: " + velocity;
 
-    if (step >= stepsForGen) {
+    if (step >= stepsForGen || nextGen) {
+        nextGen = false;
         step = 0;
         ++generation;
         population.selection();

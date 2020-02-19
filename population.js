@@ -84,9 +84,16 @@ class Population {
 
     reproduction() {
         let bestBrain = this.cars[this.maxFitCar].brain;
-        // bestBrain.print();
+        bestBrain.print();
+        
         for (let i = 0; i < this.n; ++i) {
-            if (i != this.maxFitCar) this.cars[i].brain.copy(bestBrain);
+            let i1 = Math.floor(Math.random()*this.matpool.length);
+            let i2 = Math.floor(Math.random()*this.matpool.length);
+            
+            let pare = this.cars[this.matpool[i1]];
+            let mare = this.cars[this.matpool[i2]];
+            this.cars[i].brain = pare.crossover(mare);
+            
             this.cars[i].brain.mutate();
             this.cars[i].restart();
         }

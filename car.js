@@ -144,9 +144,9 @@ class Car {
 
         let res = this.brain.out(this.senseDists)
         if (res[0] > th) this.forward(vel);
-        if (res[1] > th) this.back(vel);
+        else if (res[1] > th) this.back(vel);
         if (res[2] > th) this.left(rot);
-        if (res[3] > th) this.right(rot);
+        else if (res[3] > th) this.right(rot);
     }
 
     action(a) {
@@ -211,13 +211,23 @@ class Car {
         let c = this.checkpoints;
         if (c[0] == undefined || c[0][0] != 0) return 0;
         let fitness = 0;
-
         for (let i = 0; i < c.length; ++i) {
-            let wall = c[i];
-            let t = wall[1];
-            let nWalls = wall[0];
-            fitness += (Math.pow(2, nWalls + 1))*(1000/t);
+            let t = 0;
+            if (i > 0)
+                t = c[i][1] - c[i - 1][1];
+            else
+                t = c[i][1];
+        
+            let nWalls = c[i][0];
+            fitness += ((nWalls + 1)*10) + (10*nWalls/t);
         }
         return fitness;
+    }
+
+    crossover(other) {
+        let other_fit = other.fitness();
+        let best = other_fit > this.fitness();
+        let newBrain = this.brain.crossover(other.brain, best);
+        return newBrain;
     }
 }

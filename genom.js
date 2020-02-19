@@ -17,7 +17,13 @@ class Genom {
         this.nInputs = nInputs;
         this.nOutputs = nOutputs;
         this.outValues = {};
-        this.connections.push(neat.randomConnection(this));
+        this.nRandomConnections(20);
+    }
+
+    nRandomConnections(n) {
+        for (let i = 0; i < n; ++i) {
+            this.connections.push(this.neat.randomConnection(this));
+        }
     }
 
     getNeuron(innov) {
@@ -141,13 +147,13 @@ class Genom {
     }
 
     mutate() {
-        if (Math.random() < 0.05) {
+        if (Math.random() < 0.20) {
             this.addRandomConnection();
         }
-        if (Math.random() < 0.05) {
+        if (Math.random() < 0.20) {
             this.addRandomNeuron();
         }
-        if (Math.random() < 0.05) {
+        if (Math.random() < 0.20) {
             this.changeRandomWeight();
         }
     }
@@ -161,6 +167,52 @@ class Genom {
             }
         }
         return llista;
+    }
+
+    crossover(other, best) {
+        let newNeurons = new Array(this.neurons.length);
+        for (let i = 0; i < this.neurons.length; ++i) {
+            newNeurons[i] = this.neat.addNeuron(this.neurons[i].innov);
+        }
+        for (let i = 0; i < other.neurons.length; ++i) {
+            let trobat = false;
+            for (let j = 0; j < newNeurons.length; ++j) {
+                if (newNeurons[j].innov == other.neurons[i].innov)
+                    trobat = true;
+            }
+            if (!trobat)
+                newNeurons.push(this.neat.addNeuron(other.neurons[i].innov));
+        }
+
+        let newConnections = new Array(this.connections.length);
+        for (let i = 0; i < this.connections.length; ++i) {
+            let c = this.connections[i];
+            newConnections[i] = this.neat.connectionExists(c.in, c.out);
+        }
+
+        for (let i = 0; i < other.connections.length; ++i) {
+            let c = this.connections[i];
+            let afegir = true;
+            for (let j = 0; j < newConnections.length; ++j) {
+                console.log(newConnections)
+                console.log(j)
+                if (newConnections[j].innov == c.innov) {
+                    afegir = false;
+                    if (newConnections[j].enabled != c.enabled) {
+                        if (best) newConnections[j].enabled = c.enabled;
+                    }
+                }
+            }
+            if (afegir) {
+                let aux = this.neat.connectionExists(c.in, c.out);
+                aux.enabled = c.enabled;
+                console.log(aux)
+                newConnections.push(aux);
+            }
+        }
+        let child = new Genom(this.neat, newNeurons, this.nInputs, this.nOutputs);
+        child.connections = newConnections;
+        return child;
     }
 
     print() {

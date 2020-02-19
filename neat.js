@@ -77,10 +77,6 @@ class Neat {
 
         for (let i = 0; i < genom.neurons.length; i++) {
             if (this.isCyclicRec(genom, i, visited, stack)) {
-                console.log("------------------------------");
-                console.log("Cyclic: ");
-                console.log(genom);
-                console.log("------------------------------");
                 genom.connections.pop();
                 return true;
             }
@@ -106,7 +102,7 @@ class Neat {
             else if (n1 == n2) {
                 n2 = Math.floor(Math.random()*numNeurons);
             }
-            else if (genom.connectionExists(n2, n1)) {
+            else if (genom.connectionExists(n2, n1) || genom.connectionExists(n1, n2)) {
                 n2 = Math.floor(Math.random()*numNeurons);
                 n1 = Math.floor(Math.random()*numNeurons);
             }
