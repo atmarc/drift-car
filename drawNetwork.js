@@ -28,6 +28,6 @@ function actualitzaDibuix() {
     nodes: nodes,
     edges: edges
     };
-    var options = {};
+    var options = {edges: {arrows: {to:{enabled: true}}} };
     var network = new vis.Network(container, data, options);
 }

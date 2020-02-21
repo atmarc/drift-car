@@ -74,11 +74,12 @@ class Population {
         this.matpool = [];
         // Normalize weights and create matpool
         for (let i = 0; i < fitnessArray.length; ++i) {
-            let vegades = fitnessArray[i]*1000/maxFitness;
+            let vegades = fitnessArray[i]*100/maxFitness;
             for (let x = 0; x < vegades; ++x) {
                 this.matpool.push(i);
             }
         }
+        console.log("Matpool size: " + this.matpool.length)
         console.log("Max fitness: " + maxFitness)
     }
 
@@ -92,9 +93,13 @@ class Population {
             
             let pare = this.cars[this.matpool[i1]];
             let mare = this.cars[this.matpool[i2]];
-            this.cars[i].brain = pare.crossover(mare);
+            if (pare == undefined) console.log(i1);
+            let aux = pare.crossover(mare);
             
+            this.cars[i].brain.neurons = aux.n; 
+            this.cars[i].brain.connections = aux.c; 
             this.cars[i].brain.mutate();
+
             this.cars[i].restart();
         }
         // Tots els cotxes tornen a estar vius 
