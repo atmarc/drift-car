@@ -1,25 +1,4 @@
-class Neuron():
-    def __init__(self, innov, t):
-        self.innov = innov
-        self.type = t
-    
-    def __bool__ (self): return True
-
-    def copy(self):
-        return Neuron(self.innov, self.type)
-
-class Connection():
-    def __init__(self, innov, inp, out, w, enabled=True):
-        self.innov = innov
-        self.inp = inp
-        self.out = out
-        self.w = w
-        self.enabled = enabled
-
-    def __bool__ (self): return True
-
-    def copy(self):
-        return Connection(self.innov, self.inp, self.out, self.w, enabled=self.enabled)
+from genom import Genom, Neuron, Connection
 
 class Neat():
     def __init__(self, n_inp, n_out, clients):
@@ -70,7 +49,7 @@ class Neat():
         if c:
             c.w = w
             return c
-            
+
         index = self.n_connections
         self.n_connections += 1
         self.connections.append(Connection(index, n1, n2, w))
