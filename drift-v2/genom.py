@@ -1,3 +1,6 @@
+import math
+from random import random
+
 class Neuron():
     def __init__(self, innov, t):
         self.innov = innov
@@ -32,8 +35,7 @@ class Genom():
     def __init__(self, neat, neurons, n_inputs, n_outputs):
         self.bias = 1
         self.neurons = neurons
-        # self.connections = []
-        self.connections = my_connections
+        self.connections = []
         self.neat = neat
         self.n_inputs = n_inputs
         self.n_outputs = n_outputs
@@ -42,11 +44,7 @@ class Genom():
 
     def random_connections(self, n):
         for i in range(n):
-            c = self.neat.random_connection(self)
-            self.connections.append(c)
-
-    def sigmoid(x):
-        return 1 / (1 + Math.exp(-x));
+            self.random_connection()
 
     def get_neurons(self, n_innov):
         for n in self.neurons:
@@ -54,6 +52,8 @@ class Genom():
                 return n
     
     def out(self, values):
+
+        sigmoid = lambda x: 1 / (1 + math.exp(-x))
 
         def rec_out(n_innov):
             current_neuron = self.get_neurons(n_innov)
@@ -80,8 +80,8 @@ class Genom():
             print('The input is not of the proper size')
             return
         
-        for i, n in enumerate(self.neurons):
-            n.value = values[i]
+        for i in range(len(values)):
+            self.neurons[i].value = values[i]
         
         ret_values = []
         for n in self.neurons:
@@ -129,18 +129,33 @@ class Genom():
         self.connections.pop()
         return False        
         
-    
+    def random_connection(self):
+        n_neurons = len(self.neurons)
+        tries = 30
+        i = 0
+        while i < tries:
+            i += 1
+            n1 = math.floor(random() * n_neurons)
+            n2 = math.floor(random() * n_neurons)
+            
+            exists = self.connection_exists(n1, n2)
+            
+            if exists: 
+                exists.enabled = not exists.enabled
+                return False
+            elif self.neurons[n1].type == "output":
+                continue
+            elif self.neurons[n2].type == "input":
+                continue
+            elif n1 == n2:
+                continue
+            elif self.connection_exists(n2, n1):
+                continue
+            elif self.is_cyclic(n1, n2):
+                continue
+            else:
+                self.add_connection(n1, n2, random())
+                return True
+        return None
 
 
-# Tests cutres 
-# ------------------------------------------------------------------------------------------------------
-# neurons = [Neuron(0, "input"), Neuron(1, "input"), Neuron(2, "input"), Neuron(3, "input"),
-#            Neuron(4, "output"), Neuron(5, "output"), Neuron(6, "hidden"), Neuron(7, "hidden") ]
-
-# my_connections = [Connection(0, 0, 4, 1), Connection(1, 0, 5, 1), Connection(2, 1, 6, 1), Connection(3, 6, 5, 1)]
-
-# g = Genom(None, neurons, 4, 2) 
-# g.connections = my_connections
-
-# print(g.is_cyclic(2, 5))
-# ------------------------------------------------------------------------------------------------------
