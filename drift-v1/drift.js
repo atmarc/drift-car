@@ -170,11 +170,7 @@ var showSense = false;
 var pause = false;
 var nextGen = false;
 var stepsForGen = 800;
-<<<<<<< HEAD:drift-v1/drift.js
 var nPeople = 50;
-=======
-var nPeople = 10;
->>>>>>> d9be04591b2583503b8c9f0eb98f89dd91793011:drift.js
 var population = new Population(nPeople, stepsForGen, routeWalls, checkpoints);
 
 function update () {
