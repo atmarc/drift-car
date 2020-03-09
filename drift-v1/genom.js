@@ -17,7 +17,7 @@ class Genom {
         this.nInputs = nInputs;
         this.nOutputs = nOutputs;
         this.outValues = {};
-        this.nRandomConnections(20);
+        this.nRandomConnections(10);
     }
 
     nRandomConnections(n) {
@@ -116,9 +116,18 @@ class Genom {
             console.log("The connection with innov: " + connectionInnov + " does not exist.");
             return;
         }
-        c.enabled = false;
-        this.addConnection(c.in, newNeuron.innov, 1);
-        this.addConnection(newNeuron.innov, c.out, c.w);
+        
+        if (!this.neat.isCyclic(this, c.in, newNeuron.innov)) {
+            c.enabled = false;
+            this.addConnection(c.in, newNeuron.innov, 1);
+            if (!this.neat.isCyclic(this, newNeuron.innov, c.out)) {
+                this.addConnection(newNeuron.innov, c.out, c.w);
+            }
+            else {
+                this.connections.pop();
+                c.enabled = true;
+            } 
+        }
     }
     
     changeRandomWeight() {
@@ -207,9 +216,7 @@ class Genom {
                 newConnections.push(aux);
             }
         }
-        let child = new Genom(this.neat, newNeurons, this.nInputs, this.nOutputs);
-        child.connections = newConnections;
-        return child;
+        return {n: newNeurons, c: newConnections}
     }
 
     print() {
