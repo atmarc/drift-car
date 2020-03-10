@@ -46,17 +46,24 @@ class Genom():
         for i in range(n):
             self.random_connection()
 
-    def get_neurons(self, n_innov):
+    def get_neuron(self, n_innov):
         for n in self.neurons:
             if n.innov == n_innov:
                 return n
+        return False
     
+    def get_connection(self, c_innov):
+        for c in self.connections:
+            if c.innov == c_innov:
+                return c
+        return False
+
     def out(self, values):
 
         sigmoid = lambda x: 1 / (1 + math.exp(-x))
 
         def rec_out(n_innov):
-            current_neuron = self.get_neurons(n_innov)
+            current_neuron = self.get_neuron(n_innov)
             if current_neuron.type == "input":
                 self.out_values[n_innov] = current_neuron.value
                 return current_neuron.value
@@ -90,6 +97,20 @@ class Genom():
         
         return ret_values
 
+    def valid_connection(self, n1, n2):
+        if self.neurons[n1].type == "output":
+            return False
+        elif self.neurons[n2].type == "input":
+            return False
+        elif n1 == n2:
+            return False
+        elif self.connection_exists(n2, n1):
+            return False
+        elif self.is_cyclic(n1, n2):
+            return False
+        else:
+            return True
+
     def connection_exists(self, n1, n2):
         for c in self.connections:
             if c.inp == n1 and c.out == n2:
@@ -100,6 +121,18 @@ class Genom():
     def add_connection(self, n1, n2, w):
         c = self.neat.add_connection(n1, n2, w)
         self.connections.append(c)
+
+    def add_neuron(c_innov):
+        new_neuron = self.neat.add_neuron(len(self.neurons))
+        self.neurons.append(new_neuron)
+        c = self.get_connection(c_innov)
+        if not c: print("The connection with id " + str(c_innov) + " does not exist.")
+        
+        if self.valid_connection(c.inp, new_neuron.innov) and
+            self.valid_connection(new_neuron.innov, c.out):
+            # split i tal
+
+        else: self.neurons.pop()
 
     def is_cyclic(self, n1, n2):
         
@@ -143,19 +176,12 @@ class Genom():
             if exists: 
                 exists.enabled = not exists.enabled
                 return False
-            elif self.neurons[n1].type == "output":
+
+            elif not self.valid_connection(n1, n2):
                 continue
-            elif self.neurons[n2].type == "input":
-                continue
-            elif n1 == n2:
-                continue
-            elif self.connection_exists(n2, n1):
-                continue
-            elif self.is_cyclic(n1, n2):
-                continue
+            
             else:
                 self.add_connection(n1, n2, random())
                 return True
         return None
-
 
