@@ -171,7 +171,9 @@ class Car ():
         return fitness
 
     def crossover(self, other):
-        other_fit = other.fitness()
-        best = other_fit > this.fitness()
-        new_brain = self.brain.crossover(other.brain, best)
+        if this.fitness() > other.fitness():
+            new_brain = self.brain.crossover(other.brain)
+        else:
+            new_brain = other.brain.crossover(self.brain)
+
         return new_brain

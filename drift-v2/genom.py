@@ -15,6 +15,11 @@ class Neuron():
     def __repr__(self):
         return f'(neuron: {self.innov}, {self.type})'
 
+    def __eq__(self, obj):
+        if self.innov != obj.innov: return False
+        if self.type != obj.type: return False
+        return True
+
 class Connection():
     def __init__(self, innov, inp, out, w, enabled=True):
         self.innov = innov
@@ -30,6 +35,12 @@ class Connection():
 
     def __repr__(self):
         return f'(connection: {self.innov}, ({self.inp} --> {self.out}), w:{self.w}, {self.enabled})'
+
+    def __eq__(self, obj):
+        if self.innov != obj.innov: return False
+        if self.inp != obj.inp: return False
+        if self.out != obj.out: return False
+        return True
 
 class Genom():
     def __init__(self, neat, neurons, n_inputs, n_outputs):
@@ -100,6 +111,12 @@ class Genom():
     def add_connection(self, n1, n2, w):
         c = self.neat.add_connection(n1, n2, w)
         self.connections.append(c)
+        return c
+
+    def add_neuron(self):
+        n = self.neat.add_neuron(self.neurons)
+        self.neurons.append(n)
+        return n
 
     def is_cyclic(self, n1, n2):
         
@@ -158,4 +175,40 @@ class Genom():
                 return True
         return None
 
+    def change_weights_random(self):
+        weight = random()*1.5
+        for c in self.connections:
+            c.w = min(c.w * weight, 1)
 
+    def random_neuron(self):
+        index = random()*len(self.connections)
+        c_old = self.connections[index]
+        c_old.enabled = False
+
+        new_n = self.add_neuron()
+        self.add_connection(c_old.inp, new_n.innov, random())
+        self.add_connection(new_n.innov, c_old.out, random())
+
+    def mutate(self, m):
+        if random() < m:
+            self.random_connection()
+        if random() < m:
+            self.random_neuron()
+        if random() < m:
+            self.change_weights_random()
+
+    def crossover(self, other):
+        # best = other_fit < this_fit
+
+        new_neurons = [n.copy() for n in self.neurons]
+        new_neurons += [n.copy() for n in other.neurons if n not in new_neurons]
+
+        new_connections = [c.copy() for c in self.connections]
+        new_connections += [c.copy() for c in other.connections if c not in new_connections]
+
+        new_brain = Genom(self.neat, new_neurons, self.n_inputs, self.n_outputs)
+        new_brain.connections = new_connections
+
+        return new_brain
+
+        
