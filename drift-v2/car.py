@@ -12,8 +12,8 @@ class Car ():
         self.h = h
         self.drift = 20
         self.sense_walls = []
-        self.sense_dists = []
-        self.sense_dots = []
+        self.sense_dists = [0]*8
+        self.sense_dots = [0]*8
         self.vision_len = 400
         self.brain = brain
         self.route = route_walls
@@ -22,8 +22,8 @@ class Car ():
 
     def restart(self):
         self.checkpoints = []
-        self.x = 158
-        self.y = 239
+        self.x = 158 + 1316/2
+        self.y = 239 + 587/2
         self.rotation = -1.56
         self.dir = (1, 0) # x, y
         self.v = 0
@@ -62,7 +62,7 @@ class Car ():
             self.sense_dists[i] = min_dist / self.vision_len
     
     def actualize_walls(self):
-        self.actualizeRouteWalls()
+        self.actualize_route_walls()
 
         # Actualització parets que formen el cotxe
         x1 = (self.x - self.w/2)
@@ -105,11 +105,11 @@ class Car ():
         rot = 0.13
         th = 0.8
 
-        res = self.brain.out(self.sense_dists) # TODO: pensar bé això
+        res = self.brain.out(self.sense_dists)
         if res[0] > th: self.forward(vel)
-        else if res[1] > th: self.back(vel)
+        elif res[1] > th: self.back(vel)
         if res[2] > th: self.left(rot)
-        else if res[3] > th: self.right(rot)
+        elif res[3] > th: self.right(rot)
 
     def action(self, a):
         vel = 1
@@ -127,14 +127,14 @@ class Car ():
             if self.v >= a: self.v = self.v - a
             if self.v < a: self.v = 0 
         
-        else if self.v < 0:
+        elif self.v < 0:
             if self.v <= -a: self.v = self.v + a
             if self.v > -a: self.v = 0 
         
     def collides(self, w):
         for i in range(4):
             P = self.walls[i].intersection(w)
-            if (P) return True
+            if P: return True
         return False
     
     def forward(self, vel):
@@ -146,21 +146,19 @@ class Car ():
     def left(self, rot):
         halfpi = math.pi/2
         self.rotation += rot
-        self.dir[0] = math.cos(halfpi + self.rotation)
-        self.dir[1] = math.sin(halfpi + self.rotation)
+        self.dir = (math.cos(halfpi + self.rotation), math.sin(halfpi + self.rotation))
 
     def right(self, rot):
         halfpi = math.pi/2
         self.rotation += rot
-        self.dir[0] = math.cos(halfpi + self.rotation)
-        self.dir[1] = math.sin(halfpi + self.rotation)
+        self.dir = (math.cos(halfpi + self.rotation), math.sin(halfpi + self.rotation))
 
     def fitness (self):
         c = self.checkpoints
-        if len(c) == 0: return 0
-        if c[0][0] != 0: return 0
+        if len(c) == 0: return 0.1
+        if c[0][0] != 0: return 0.1
 
-        fitness = 0
+        fitness = 0.1
         for i in range(len(c)):
             t = 0
             if i > 0: t = c[i][1] - c[i - 1][1]
@@ -171,7 +169,7 @@ class Car ():
         return fitness
 
     def crossover(self, other):
-        if this.fitness() > other.fitness():
+        if self.fitness() > other.fitness():
             new_brain = self.brain.crossover(other.brain)
         else:
             new_brain = other.brain.crossover(self.brain)

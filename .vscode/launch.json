@@ -8,7 +8,7 @@
             "Python: Archivo actual",
             "type":"python",
             "request":"launch",
-            "program":"${file}",
+            "program":"/home/usuario/Escritorio/prog/drift/drift-v2/main.py",
             "console":"integratedTerminal"
         },
         {

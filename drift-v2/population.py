@@ -1,6 +1,7 @@
 from car import Car
 import math
 from random import random
+from neat import Neat
 
 class Population():
     def __init__(self, n, s, walls, checkpoints):
@@ -9,7 +10,7 @@ class Population():
         self.walls = walls
         self.checkpoints = checkpoints
         self.cars = []
-        self.neat = new Neat(8, 4, n) # TODO: mirar això si ho faré així o com
+        self.neat = Neat(8, 4, n) # TODO: mirar això si ho faré així o com
         self.matpool = []
         
         for i in range(n):
@@ -18,7 +19,7 @@ class Population():
         self.alive = [True] * n
 
     def check_colision(self, car):
-        for w in self.walls):
+        for w in self.walls:
             if car.collides(w):
                 return True
         
@@ -49,7 +50,7 @@ class Population():
         return step
 
     def selection(self):
-        fitness_array = []
+        fitness_array = [0]*self.n
         max_fitness = -1
         max_fit_car = 0
         for i in range(self.n):
@@ -64,25 +65,24 @@ class Population():
 
         # Normalize weights and create matpool
         for i in range(len(fitness_array)):
-            times = fitness_array[i] * 1000/max_fitness
-            for i in range(times):
+            times = int(fitness_array[i] * 1000/max_fitness)
+            for x in range(times):
                 self.matpool.append(i)
 
-    def reproduction(self):
+    def reproduction(self, m):
         best_brain = self.cars[self.max_fit_car].brain
+        self.cars[0].brain = best_brain
 
-        for i in range(self.n):
+        for i in range(1, self.n):
             i1 = math.floor(random() * len(self.matpool))
             i2 = math.floor(random() * len(self.matpool))
 
             father = self.cars[self.matpool[i1]]
             mother = self.cars[self.matpool[i2]]
             child_brain = father.crossover(mother)
-
             self.cars[i].brain = child_brain
-            self.cars[i].brain.mutate()
-
+            self.cars[i].brain.mutate(m)
             self.cars[i].restart()
         
-        self.alive = [True] * n
+        self.alive = [True] * self.n
         

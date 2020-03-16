@@ -52,5 +52,6 @@ class Neat():
 
         index = self.n_connections
         self.n_connections += 1
+
         self.connections.append(Connection(index, n1, n2, w))
         return Connection(index, n1, n2, w)

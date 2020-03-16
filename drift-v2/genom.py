@@ -13,7 +13,7 @@ class Neuron():
         return Neuron(self.innov, self.type)
 
     def __repr__(self):
-        return f'(neuron: {self.innov}, {self.type})'
+        return f'({self.innov}, {self.type})'
 
     def __eq__(self, obj):
         if self.innov != obj.innov: return False
@@ -34,7 +34,7 @@ class Connection():
         return Connection(self.innov, self.inp, self.out, self.w, enabled=self.enabled)
 
     def __repr__(self):
-        return f'(connection: {self.innov}, ({self.inp} --> {self.out}), w:{self.w}, {self.enabled})'
+        return f'(i:{self.innov},{self.inp},{self.out},{self.enabled})'
 
     def __eq__(self, obj):
         if self.innov != obj.innov: return False
@@ -51,7 +51,7 @@ class Genom():
         self.n_inputs = n_inputs
         self.n_outputs = n_outputs
         self.out_values = {}
-        # self.random_connections(10)
+        self.random_connections(10)
 
     def random_connections(self, n):
         for i in range(n):
@@ -70,6 +70,11 @@ class Genom():
         return False
 
     def out(self, values):
+        
+        if self.is_cyclic(-1, -2):
+            print(self.neurons)
+            print(self.connections)
+            raise Exception("this is acyclic")
 
         sigmoid = lambda x: 1 / (1 + math.exp(-x))
 
@@ -135,21 +140,9 @@ class Genom():
         return c
 
     def add_neuron(self):
-        n = self.neat.add_neuron(self.neurons)
+        n = self.neat.add_neuron(len(self.neurons))
         self.neurons.append(n)
         return n
-
-    def add_neuron(c_innov):
-        new_neuron = self.neat.add_neuron(len(self.neurons))
-        self.neurons.append(new_neuron)
-        c = self.get_connection(c_innov)
-        if not c: print("The connection with id " + str(c_innov) + " does not exist.")
-        
-        if self.valid_connection(c.inp, new_neuron.innov) and
-            self.valid_connection(new_neuron.innov, c.out):
-            # split i tal
-
-        else: self.neurons.pop()
 
     def is_cyclic(self, n1, n2):
         
@@ -167,12 +160,12 @@ class Genom():
             stack[v] = False
             return False 
 
-        visited = [False] * len(self.neurons)
-        stack = [False] * len(self.neurons)
+        visited = [False]*len(self.neurons)
+        stack = [False]*len(self.neurons)
 
         self.connections.append(Connection(-1, n1, n2, 1))
-        for i in range(len(self.neurons)):
-            if rec_is_cyclic(i, visited, stack):
+        for n in self.neurons:
+            if rec_is_cyclic(n.innov, visited, stack):
                 self.connections.pop()
                 return True
 
@@ -203,12 +196,12 @@ class Genom():
         return None
 
     def change_weights_random(self):
-        weight = random()*1.5
+        weight = random()*2
         for c in self.connections:
             c.w = min(c.w * weight, 1)
 
     def random_neuron(self):
-        index = random()*len(self.connections)
+        index = math.floor(random()*len(self.connections))
         c_old = self.connections[index]
         c_old.enabled = False
 
@@ -231,11 +224,12 @@ class Genom():
         new_neurons += [n.copy() for n in other.neurons if n not in new_neurons]
 
         new_connections = [c.copy() for c in self.connections]
-        new_connections += [c.copy() for c in other.connections if c not in new_connections]
-
         new_brain = Genom(self.neat, new_neurons, self.n_inputs, self.n_outputs)
         new_brain.connections = new_connections
+        
+        for c in other.connections:
+            if not c in new_connections:
+                if not new_brain.is_cyclic(c.inp, c.out):
+                    new_brain.connections.append(c)
 
         return new_brain
-
-        
