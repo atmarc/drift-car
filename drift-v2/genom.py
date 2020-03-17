@@ -51,7 +51,7 @@ class Genom():
         self.n_inputs = n_inputs
         self.n_outputs = n_outputs
         self.out_values = {}
-        self.random_connections(10)
+        self.random_connections(5)
 
     def random_connections(self, n):
         for i in range(n):
@@ -196,9 +196,10 @@ class Genom():
         return None
 
     def change_weights_random(self):
-        weight = random()*2
+        weight = random()/50
+        if random() < 0.5: weight = -weight 
         for c in self.connections:
-            c.w = min(c.w * weight, 1)
+            c.w = max(0, min(c.w + weight, 1))
 
     def random_neuron(self):
         index = math.floor(random()*len(self.connections))
@@ -206,8 +207,8 @@ class Genom():
         c_old.enabled = False
 
         new_n = self.add_neuron()
-        self.add_connection(c_old.inp, new_n.innov, random())
-        self.add_connection(new_n.innov, c_old.out, random())
+        self.add_connection(c_old.inp, new_n.innov, c_old.w)
+        self.add_connection(new_n.innov, c_old.out, 1)
 
     def mutate(self, m):
         if random() < m:

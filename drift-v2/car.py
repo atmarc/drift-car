@@ -165,6 +165,7 @@ class Car ():
             else: t = c[i][1]
             nwalls = c[i][0]
             fitness += ((nwalls + 1) * 10) + (10 * nwalls/t)
+            # fitness += ((nwalls + 1) * 10)
         
         return fitness
 

@@ -28,8 +28,11 @@ class Population():
     def progress(self, car, step):
         for i, c in enumerate(self.checkpoints):
             front_wall = car.walls[0]
-            if front_wall.intersection(c) and len(car.checkpoints) == i:
-                car.checkpoints.append([i, step])
+            check = False
+            for w in car.walls:
+                if w.intersection(c) and len(car.checkpoints) == i: check = True
+            if check: car.checkpoints.append([i, step])
+
     
     def run(self, step):
         end = True
@@ -71,9 +74,9 @@ class Population():
 
     def reproduction(self, m):
         best_brain = self.cars[self.max_fit_car].brain
-        self.cars[0].brain = best_brain
+        # self.cars[0].brain = best_brain
 
-        for i in range(1, self.n):
+        for i in range(0, self.n):
             i1 = math.floor(random() * len(self.matpool))
             i2 = math.floor(random() * len(self.matpool))
 

@@ -28,8 +28,8 @@ for i in range(0, len(dots), 4):
 
 generation = 0
 step = 0
-steps_for_gen = 1000
-pop_size = 10
+steps_for_gen = 3000
+pop_size = 30
 population = Population(pop_size, steps_for_gen, route_walls, checkpoints)
 
 car_forms = [0]*pop_size
@@ -57,6 +57,7 @@ def update():
         print("Best punctuation: ", population.cars[population.max_fit_car].fitness())
         print("Neurons best:", len(population.cars[population.max_fit_car].brain.neurons))
         print("Connections best:", len(population.cars[population.max_fit_car].brain.connections))
+        print("Connections checkpoints:", population.cars[population.max_fit_car].checkpoints)
         print("Reproducing...")
         population.reproduction(0.2)
         print("Garbage collecting")
