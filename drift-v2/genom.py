@@ -1,5 +1,6 @@
 import math
 from random import random
+from functools import lru_cache
 
 class Neuron():
     def __init__(self, innov, t):
@@ -51,11 +52,16 @@ class Genom():
         self.n_inputs = n_inputs
         self.n_outputs = n_outputs
         self.out_values = {}
-        self.random_connections(5)
+        self.random_connections()
 
-    def random_connections(self, n):
-        for i in range(n):
-            self.random_connection()
+    def random_connections(self):
+        # Full conex
+        # ---------------------------------------------------------------------------------------
+        # for i in range(self.n_inputs):
+        #     for j in range(self.n_outputs):
+        #         if i != self.n_inputs + j: self.add_connection(i, self.n_inputs + j, random())
+        # ---------------------------------------------------------------------------------------
+        for i in range(10): self.random_connection()
 
     def get_neuron(self, n_innov):
         for n in self.neurons:
@@ -71,13 +77,14 @@ class Genom():
 
     def out(self, values):
         
-        if self.is_cyclic(-1, -2):
+        if self.is_cyclic(20, 21):
             print(self.neurons)
             print(self.connections)
             raise Exception("this is acyclic")
 
         sigmoid = lambda x: 1 / (1 + math.exp(-x))
 
+        @lru_cache(None)
         def rec_out(n_innov):
             current_neuron = self.get_neuron(n_innov)
             if current_neuron.type == "input":
@@ -88,11 +95,11 @@ class Genom():
             for c in self.connections:
                 if c.out == n_innov and c.enabled:
                     # DP per fer-ho eficient
-                    if c.inp in self.out_values.keys():
-                        sum += self.out_values[c.inp] * c.w
+                    # if c.inp in self.out_values.keys():
+                    #     sum += self.out_values[c.inp] * c.w
                     
-                    else:
-                        sum += rec_out(c.inp) * c.w
+                    # else:
+                    sum += rec_out(c.inp) * c.w
 
             output_value = sigmoid(sum + self.bias)
             self.out_values[n_innov] = output_value
@@ -198,6 +205,7 @@ class Genom():
     def change_weights_random(self):
         weight = random()/50
         if random() < 0.5: weight = -weight 
+        
         for c in self.connections:
             c.w = max(0, min(c.w + weight, 1))
 
@@ -221,16 +229,33 @@ class Genom():
     def crossover(self, other):
         # best = other_fit < this_fit
 
-        new_neurons = [n.copy() for n in self.neurons]
-        new_neurons += [n.copy() for n in other.neurons if n not in new_neurons]
+        i1 = 0
+        i2 = 0
+        c1 = self.connections
+        c2 = other.connections
+        
+        new_connections = []
+        while i1 < len(c1) and i2 < len(c2):
+            if c1[i1].innov == c2[i2].innov:
+                if random() < 0.5:
+                    new_connections.append(c1[i1].copy())
+                else: 
+                    new_connections.append(c2[i2].copy())
+                i1 += 1
+                i2 += 1
 
-        new_connections = [c.copy() for c in self.connections]
+            elif c1[i1].innov < c2[i2].innov:
+                new_connections.append(c1[i1].copy())
+                i1 += 1
+            
+            elif c1[i1].innov > c2[i2].innov:
+                i2 += 1
+
+        while i1 < len(c1):
+            new_connections.append(c1[i1].copy())
+            i1 += 1
+
+        new_neurons = [n.copy() for n in self.neurons]
         new_brain = Genom(self.neat, new_neurons, self.n_inputs, self.n_outputs)
         new_brain.connections = new_connections
-        
-        for c in other.connections:
-            if not c in new_connections:
-                if not new_brain.is_cyclic(c.inp, c.out):
-                    new_brain.connections.append(c)
-
         return new_brain

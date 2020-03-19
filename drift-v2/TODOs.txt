@@ -1,0 +1,18 @@
+TODOs:
+- Mutations: enable-disable, change one random weight, change all, link, node
+- Comprobar que la classe NEAT genera bé les arestes i no 
+en te de repedies guardades.
+- Fer que els cotxes no tinguin guardat els genoms sino que els tingui guardats 
+la classe NEAT, i que quan aquesta necessiti el fitness d'un cotxe
+cridi a una funció getFitness(i) de la instància de population
+que tindrà guardada. 
+
+Speciation:
+//TODO: pensar si cal matpool o pots fer reproducció random entre
+els de la teva espècie
+
+- Utilitzant el calcul de distància, creem les diferents espècies
+- Ordenenm els membres de les espècies per fitness value
+- Matem el 50% dels membres de cada espècia
+- Borrar espècies extingides
+- Reproduir els membres de cada espècia entre ells

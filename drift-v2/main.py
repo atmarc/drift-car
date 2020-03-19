@@ -29,10 +29,17 @@ for i in range(0, len(dots), 4):
 generation = 0
 step = 0
 steps_for_gen = 3000
-pop_size = 30
+pop_size = 100
 population = Population(pop_size, steps_for_gen, route_walls, checkpoints)
-
 car_forms = [0]*pop_size
+dots_sense = [0]*8
+
+def create_circle(x, y, r, canvasName): #center coordinates, radius
+    x0 = x - r
+    y0 = y - r
+    x1 = x + r
+    y1 = y + r
+    return canvasName.create_oval(x0, y0, x1, y1)
 
 def update():
     global step
@@ -44,6 +51,12 @@ def update():
     step = population.run(step)
 
     for i, c in enumerate(population.cars):
+        if i == 10:
+            for x in range(8):
+                dot = c.sense_dots[x]
+                canvas.delete(dots_sense[x])
+                if dot: dots_sense[x] = create_circle(dot[0], dot[1], 5, canvas)
+
         points = []
         for w in c.walls: points += [w.x1, w.y1]
         canvas.delete(car_forms[i])
