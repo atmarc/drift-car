@@ -1,8 +1,12 @@
 from genom import Genom, Neuron, Connection
+from species import Species
+import random
+import math
 
 class Neat():
-    def __init__(self, n_inp, n_out, clients):
+    def __init__(self, n_inp, n_out, clients, population):
         self.clients = clients
+        self.population = population
         self.n_inputs = n_inp
         self.n_outputs = n_out
         self.bias = 1
@@ -11,6 +15,7 @@ class Neat():
         self.n_neurons = 0
         self.n_connections = 0
         self.genoms = []
+        self.species = []
 
         for i in range(n_inp):
             self.neurons.append(Neuron(self.n_neurons, "input"))
@@ -55,3 +60,33 @@ class Neat():
 
         self.connections.append(Connection(index, n1, n2, w))
         return Connection(index, n1, n2, w)
+
+    def reproduction(self, fitness_array):
+
+        def check_species(g):
+            for s in self.species:
+                if s.check_if_member(g):
+                    return True
+            return False
+
+        for i, g in enumerate(self.genoms):
+            g.fitness = fitness_array[i]
+            if not check_species(g):
+                self.species.append(Species(g))
+
+        n_extint = 0
+        new_species = []
+        for s in self.species:
+            s.sort()
+            extinct = s.kill()
+            if extinct: 
+                n_extint += 1
+            else: 
+                new_species.append(s.reproduce())
+
+        self.species = new_species
+
+        n_extra = self.clients - len(self.genoms)
+        for i in range(n_extra):
+            random.choice(self.genoms).reproduce_extra()
+

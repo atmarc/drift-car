@@ -2,6 +2,7 @@ TODOs:
 - Mutations: enable-disable, change one random weight, change all, link, node
 - Comprobar que la classe NEAT genera bé les arestes i no 
 en te de repedies guardades.
+- Fer tests del crossover.
 - Fer que els cotxes no tinguin guardat els genoms sino que els tingui guardats 
 la classe NEAT, i que quan aquesta necessiti el fitness d'un cotxe
 cridi a una funció getFitness(i) de la instància de population

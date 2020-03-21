@@ -28,11 +28,9 @@ for i in range(0, len(dots), 4):
 
 generation = 0
 step = 0
-steps_for_gen = 3000
+steps_for_gen = 50
 pop_size = 100
 population = Population(pop_size, steps_for_gen, route_walls, checkpoints)
-car_forms = [0]*pop_size
-dots_sense = [0]*8
 
 def create_circle(x, y, r, canvasName): #center coordinates, radius
     x0 = x - r
@@ -41,6 +39,8 @@ def create_circle(x, y, r, canvasName): #center coordinates, radius
     y1 = y + r
     return canvasName.create_oval(x0, y0, x1, y1)
 
+car_forms = [0]*pop_size
+dots_sense = [0]*8
 def update():
     global step
     global generation
@@ -70,9 +70,10 @@ def update():
         print("Best punctuation: ", population.cars[population.max_fit_car].fitness())
         print("Neurons best:", len(population.cars[population.max_fit_car].brain.neurons))
         print("Connections best:", len(population.cars[population.max_fit_car].brain.connections))
-        print("Connections checkpoints:", population.cars[population.max_fit_car].checkpoints)
+        # print("Connections checkpoints:", population.cars[population.max_fit_car].checkpoints)
         print("Reproducing...")
-        population.reproduction(0.2)
+        population.reproduction()
+        print("Species: ", population.neat.species)
         print("Garbage collecting")
         gc.collect()
         print(len(population.neat.neurons))
@@ -84,17 +85,17 @@ def update():
     if step % 10 == 0: time = 1
     canvas.after(time, update)
 
+if __name__ == "__main__":
+    window = Tk()
+    canvas = Canvas(window)
+    for w in route_walls:
+        canvas.create_line(w.x1, w.y1, w.x2, w.y2)
 
-window = Tk()
-canvas = Canvas(window)
-for w in route_walls:
-    canvas.create_line(w.x1, w.y1, w.x2, w.y2)
+    for w in checkpoints:
+        canvas.create_line(w.x1, w.y1, w.x2, w.y2, fill="green")
 
-for w in checkpoints:
-    canvas.create_line(w.x1, w.y1, w.x2, w.y2, fill="green")
-
-canvas.pack(fill=BOTH, expand=1)
-canvas.after(1000, update)
-window.mainloop()
+    canvas.pack(fill=BOTH, expand=1)
+    canvas.after(1000, update)
+    window.mainloop()
 
 # Possible futura GUI amb tkinter

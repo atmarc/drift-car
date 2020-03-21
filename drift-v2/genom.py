@@ -53,6 +53,7 @@ class Genom():
         self.n_outputs = n_outputs
         self.out_values = {}
         self.random_connections()
+        self.fitness = -1
 
     def random_connections(self):
         # Full conex
@@ -218,7 +219,8 @@ class Genom():
         self.add_connection(c_old.inp, new_n.innov, c_old.w)
         self.add_connection(new_n.innov, c_old.out, 1)
 
-    def mutate(self, m):
+    def mutate(self):
+        m = 0.2
         if random() < m:
             self.random_connection()
         if random() < m:
@@ -258,4 +260,49 @@ class Genom():
         new_neurons = [n.copy() for n in self.neurons]
         new_brain = Genom(self.neat, new_neurons, self.n_inputs, self.n_outputs)
         new_brain.connections = new_connections
+        new_brain.mutate()
         return new_brain
+
+    def distance(self, other):
+        k1 = k2 = k3 = 1
+
+        i1 = 0
+        i2 = 0
+        self.connections.sort(key=lambda p: p.innov)
+        c1 = self.connections
+        other.connections.sort(key=lambda p: p.innov)
+        c2 = other.connections
+
+        n_matching = 0
+        wheight_diff = 0        
+        disjoint = 0
+        while i1 < len(c1) and i2 < len(c2):
+            if c1[i1].innov == c2[i2].innov:
+                n_matching += 1
+                wheight_diff += abs(c1[i1].w - c2[i2].w)
+                i1 += 1
+                i2 += 1
+
+            elif c1[i1].innov < c2[i2].innov:
+                disjoint += 1
+                i1 += 1
+            
+            elif c1[i1].innov > c2[i2].innov:
+                disjoint += 1
+                i2 += 1
+
+        excess = 0
+        
+        while i1 < len(c1):
+            excess += 1
+            i1 += 1
+
+        while i2 < len(c2):
+            excess += 1
+            i2 += 1
+
+        N = max(len(c1), len(c2))
+        if N < 20: N = 1
+        dist = (k1*excess/N) + (k2*disjoint/N) + k3*(wheight_diff/max(1, n_matching))
+
+        return dist

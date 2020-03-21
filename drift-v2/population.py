@@ -10,7 +10,8 @@ class Population():
         self.walls = walls
         self.checkpoints = checkpoints
         self.cars = []
-        self.neat = Neat(8, 4, n) # TODO: mirar això si ho faré així o com
+        self.neat = Neat(8, 4, n, self) # TODO: mirar això si ho faré així o com
+        self.fitness_array = [0]*self.n
         self.matpool = []
         
         for i in range(n):
@@ -53,12 +54,11 @@ class Population():
         return step
 
     def selection(self):
-        fitness_array = [0]*self.n
         max_fitness = -1
         max_fit_car = 0
         for i in range(self.n):
             aux = self.cars[i].fitness()
-            fitness_array[i] = aux
+            self.fitness_array[i] = aux
             if aux > max_fitness:
                 max_fitness = aux
                 max_fit_car = i
@@ -66,26 +66,17 @@ class Population():
         self.max_fit_car = max_fit_car
         self.matpool = []
 
-        # Normalize weights and create matpool
-        for i in range(len(fitness_array)):
-            times = int(fitness_array[i] * 1000/max_fitness)
-            for x in range(times):
-                self.matpool.append(i)
+        # # Normalize weights and create matpool
+        # for i in range(len(self.fitness_array)):
+        #     times = int(self.fitness_array[i] * 1000/max_fitness)
+        #     for x in range(times):
+        #         self.matpool.append(i)
 
-    def reproduction(self, m):
-        best_brain = self.cars[self.max_fit_car].brain
-        # self.cars[0].brain = best_brain
+    def reproduction(self):
+        self.neat.reproduction(self.fitness_array)
 
-        for i in range(0, self.n):
-            i1 = math.floor(random() * len(self.matpool))
-            i2 = math.floor(random() * len(self.matpool))
-
-            father = self.cars[self.matpool[i1]]
-            mother = self.cars[self.matpool[i2]]
-            child_brain = father.crossover(mother)
-            self.cars[i].brain = child_brain
-            self.cars[i].brain.mutate(m)
+        for i in range(self.n):
+            self.cars[i].brain = self.neat.genoms[i]
             self.cars[i].restart()
-        
         self.alive = [True] * self.n
         
